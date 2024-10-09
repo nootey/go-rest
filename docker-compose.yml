@@ -16,14 +16,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: go-rest
     depends_on:
       - mongo
     ports:
-      - "8080:8080"
+      - "8080:80"
     environment:
       - MONGO_URI=mongodb://root:root@mongo:27017/go-rest?authSource=admin
       - PORT=8080
-    entrypoint: [ "./main"]
+    volumes:
+      - .:/app
+    command: air
 
 volumes:
   mongo-data:

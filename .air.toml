@@ -1,0 +1,8 @@
+# Config file for Air - Live Reload
+root = "."
+temp_dir = "tmp"
+build = "go build -o ./tmp/main cmd/go-rest/main.go"
+cmd = "./tmp/main"
+include_ext = ["go", "tpl", "html", "sql"]
+exclude_dir = ["assets", "tmp", "vendor"]
+bin = "air"
