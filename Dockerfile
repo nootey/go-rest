@@ -4,29 +4,20 @@ FROM golang:1.23-alpine AS builder
 # Set the working directory
 WORKDIR /app
 
-# Install Air for live reload
+# Get air
 RUN go install github.com/air-verse/air@latest
 
-# Copy and install dependencies
-COPY . .
+# Copy go modules files to the working directory
+COPY go.mod go.sum ./
+
+# Download dependencies
 RUN go mod download
 
-# Build the app
-RUN go build -o main cmd/go-rest/main.go
-
-# Run stage
-FROM alpine:latest
-
-# Set working directory
-WORKDIR /root/
-
-# Copy the compiled app from builder
-COPY --from=builder /app/main .
-COPY --from=builder /go/bin/air /usr/bin/air
+# Copy the entire project into the working directory
 COPY . .
 
-# Expose the port your app runs on
-EXPOSE 8080
+# Expose the application port
+EXPOSE 3000
 
-# Start Air to watch for changes
-CMD ["air"]
+# Start the application
+CMD [ "air", "-c", ".air.toml" ]

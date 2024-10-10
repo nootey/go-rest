@@ -1,9 +1,5 @@
 package config
 
-import (
-	"os"
-)
-
 type Config struct {
 	MongoURI string
 	Port     string
@@ -11,7 +7,6 @@ type Config struct {
 
 func LoadConfig() *Config {
 	return &Config{
-		MongoURI: os.Getenv("MONGO_URI"),
-		Port:     os.Getenv("PORT"),
+		MongoURI: "mongodb://root:root@mongo:27017/app?authSource=admin",
 	}
 }

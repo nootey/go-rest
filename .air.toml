@@ -1,8 +1,17 @@
 # Config file for Air - Live Reload
-root = "."
-temp_dir = "tmp"
-build = "go build -o ./tmp/main cmd/go-rest/main.go"
-cmd = "./tmp/main"
-include_ext = ["go", "tpl", "html", "sql"]
-exclude_dir = ["assets", "tmp", "vendor"]
-bin = "air"
+[build]
+  # Command to build the app
+  cmd = "go build -o cmd/build/main cmd/app/main.go"
+  # Binary to watch and run
+  bin = "cmd/build/main"
+  # Working directory, make sure this matches the location of the binary
+  dir = "."
+  # Patterns to watch
+  include_ext = ["go"]
+  # Exclude files and directories from being watched
+  exclude_dir = ["vendor", "tmp"]
+  # Command to run after build, ensuring the binary is executable
+  run_after_build = "chmod +x cmd/build/main"
+
+[log]
+  level = "debug"
