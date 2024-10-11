@@ -7,7 +7,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
-      - MONGO_INITDB_DATABASE=app
+      - MONGO_INITDB_DATABASE=go-rest
     volumes:
       - mongo-data:/data/db
     command: mongod --quiet --logpath /dev/null
@@ -20,13 +20,10 @@ services:
     depends_on:
       - mongo
     ports:
-      - "3000:3000"
+      - "8080:8080"
     environment:
-      MONGO_URI: mongodb://root:root@mongo:27017/app?authSource=admin
+      MONGO_URI: mongodb://root:root@mongo:27017/go-rest?authSource=admin
       PORT: 8080
-    volumes:
-      - .:/app
-    command: air
 
 volumes:
   mongo-data:

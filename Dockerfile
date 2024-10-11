@@ -16,8 +16,24 @@ RUN go mod download
 # Copy the entire project into the working directory
 COPY . .
 
-# Expose the application port
-EXPOSE 3000
+# Build the Go application
+RUN go build -o /app/main cmd/app/main.go
 
-# Start the application
-CMD [ "air", "-c", ".air.toml" ]
+# Production Stage
+FROM alpine:latest
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/main .
+COPY --from=builder /app/.env .
+
+# Modify the .env file using sed
+RUN sed -i 's/^MONGO_HOST=.*/MONGO_HOST=mongo/' /app/.env
+
+# Expose the port the app will run on
+EXPOSE 8080
+
+# Run the Go binary
+CMD ["/app/main"]
