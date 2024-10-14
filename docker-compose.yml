@@ -23,7 +23,9 @@ services:
       - "8080:8080"
     environment:
       MONGO_URI: mongodb://root:root@mongo:27017/go-rest?authSource=admin
+      MONGO_DB: go-rest
       PORT: 8080
+      RELEASE: prod
 
 volumes:
   mongo-data:

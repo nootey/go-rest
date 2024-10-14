@@ -29,9 +29,6 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env .
 
-# Modify the .env file using sed
-RUN sed -i 's/^MONGO_HOST=.*/MONGO_HOST=mongo/' /app/.env
-
 # Expose the port the app will run on
 EXPOSE 8080
 

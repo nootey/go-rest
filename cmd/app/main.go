@@ -26,7 +26,11 @@ func main() {
 	cfg := config.LoadConfig()
 	logger.Info("Loaded the configuration", zap.Any("config", cfg))
 
-	_ = mongo.NewMongoDBClient(cfg.MongoURI)
+	err = mongo.Connect(cfg.MongoURI, cfg.MongoDatabase)
+	if err != nil {
+		logger.With(zap.Error(err)).Fatal("Unable to connect to database")
+	}
+	logger.Info("Connected to the database")
 
 	// Initialize the server with the logger
 	httpServer := server.NewServer(cfg, logger)
