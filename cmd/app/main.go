@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"go-rest/internal/api/server"
-	"go-rest/internal/services/mongo"
+	"go-rest/internal/repositories/mongo"
 	"go-rest/pkg/config"
 	"go.uber.org/zap"
 	"log"
