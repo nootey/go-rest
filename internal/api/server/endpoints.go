@@ -30,13 +30,13 @@ func InitEndpoints(r *gin.Engine, cfg *config.Config) {
 		checkState(c)
 	})
 
-	userRepo := repositories.NewUserRepository()
-	userHandler := handlers.NewUserHandler(userRepo)
+	noteRepo := repositories.NewNoteRepository()
+	noteHandler := handlers.NewNoteHandler(noteRepo)
 
 	apiGroup := r.Group(apiV1)
 	{
-		apiGroup.POST("/users/create", userHandler.CreateUser)
-		apiGroup.GET("/users", userHandler.GetUsers)
+		apiGroup.POST("/notes/create", noteHandler.CreateNote)
+		apiGroup.GET("/notes/get", noteHandler.GetNotes)
 	}
 
 }
