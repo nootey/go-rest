@@ -3,7 +3,7 @@ package handlers
 import (
 	"go-rest/internal/models"
 	"go-rest/internal/services"
-	"go.mongodb.org/mongo-driver/bson"
+	"go-rest/pkg/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,19 +25,18 @@ func (h *NotesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	if request["title"] == nil || request["description"] == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "note data is incomplete"})
-		return
+	note := &models.Note{
+		Title:       request["title"].(string),
+		Description: request["description"].(string),
 	}
 
-	note := models.NewNote(request["title"].(string), request["description"].(string))
-
-	err := h.service.Repo.CreateNewNote(note)
+	err := h.service.CreateNote(note)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, bson.M{"Status": "Note has been created successfully!"})
+
+	utils.SuccessMessage("Note has been created successfully!", "Create success", 200)
 }
 
 func (h *NotesHandler) GetNotes(c *gin.Context) {

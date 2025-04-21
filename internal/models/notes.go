@@ -9,10 +9,3 @@ type Note struct {
 	Title            string `bson:"title" json:"title" binding:"required"`
 	Description      string `bson:"description" json:"description"`
 }
-
-func NewNote(title string, description string) *Note {
-	return &Note{
-		Title:       title,
-		Description: description,
-	}
-}

@@ -16,22 +16,6 @@ func NewNotesRepository(db *mongo.Client) *NotesRepository {
 	return &NotesRepository{DB: db}
 }
 
-func (repo *NotesRepository) CreateNewNote(note *models.Note) error {
-
-	if note == nil {
-		return fmt.Errorf("note is nil")
-	}
-
-	existingNote := &models.Note{}
-	err := mgm.Coll(note).First(bson.M{"title": note.Title}, existingNote)
-
-	if err == nil {
-		return fmt.Errorf("note with title %s already exists", note.Title)
-	}
-
-	return mgm.Coll(note).Create(note)
-}
-
 func (repo *NotesRepository) GetAllNotes() ([]models.Note, error) {
 	var notes []models.Note
 	err := mgm.Coll(&models.Note{}).SimpleFind(&notes, bson.M{})
@@ -40,4 +24,20 @@ func (repo *NotesRepository) GetAllNotes() ([]models.Note, error) {
 	}
 
 	return notes, err
+}
+
+func (repo *NotesRepository) InsertNote(record *models.Note) error {
+
+	if record == nil {
+		return fmt.Errorf("note is nil")
+	}
+
+	existingNote := &models.Note{}
+	err := mgm.Coll(record).First(bson.M{"title": record.Title}, existingNote)
+
+	if err == nil {
+		return fmt.Errorf("note with title %s already exists", record.Title)
+	}
+
+	return mgm.Coll(record).Create(record)
 }
