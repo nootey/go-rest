@@ -5,6 +5,7 @@ import (
 	"go-rest/internal/api/handlers"
 	"go-rest/internal/api/server/endpoints"
 	"go-rest/internal/bootstrap"
+	"go-rest/pkg/database"
 	"net/http"
 )
 
@@ -48,11 +49,11 @@ func healthCheck(c *gin.Context) {
 	dbStatus := "healthy"
 
 	// Check database connection
-	//err := database.PingTimescaleDatabase()
-	//if err != nil {
-	//	dbStatus = "unhealthy"
-	//	httpHealthStatus = "degraded"
-	//}
+	err := database.PingDatabase()
+	if err != nil {
+		dbStatus = "unhealthy"
+		httpHealthStatus = "degraded"
+	}
 
 	statusCode := http.StatusOK
 	if httpHealthStatus == "degraded" {

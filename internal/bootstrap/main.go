@@ -4,14 +4,16 @@ import (
 	"go-rest/internal/api/services"
 	"go-rest/internal/repositories"
 	"go-rest/pkg/config"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Container struct {
 	Config       *config.Config
+	DB           *mongo.Client
 	NotesService *services.NotesService
 }
 
-func NewContainer(cfg *config.Config) *Container {
+func NewContainer(cfg *config.Config, db *mongo.Client) *Container {
 
 	notesRepo := repositories.NewNotesRepository()
 
@@ -19,6 +21,7 @@ func NewContainer(cfg *config.Config) *Container {
 
 	return &Container{
 		Config:       cfg,
+		DB:           db,
 		NotesService: notesService,
 	}
 }

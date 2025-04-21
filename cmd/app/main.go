@@ -4,8 +4,8 @@ import (
 	"context"
 	"go-rest/internal/api/server"
 	"go-rest/internal/bootstrap"
-	"go-rest/internal/repositories/mongo"
 	"go-rest/pkg/config"
+	"go-rest/pkg/database"
 	"go.uber.org/zap"
 	"log"
 	"os/signal"
@@ -27,27 +27,27 @@ func main() {
 	cfg := config.LoadConfig()
 	logger.Info("Loaded the configuration", zap.Any("config", cfg))
 
-	err = mongo.Connect(cfg.MongoURI, cfg.MongoDatabase)
+	dbClient, err := database.ConnectToDatabase(cfg)
 	if err != nil {
-		logger.With(zap.Error(err)).Fatal("Unable to connect to database")
+		log.Fatalf("Database connection Error: %v", err)
 	}
+	defer database.DisconnectDatabase()
 	logger.Info("Connected to the database")
 
 	// Initialize the server with the logger
-	container := bootstrap.NewContainer(cfg)
-	httpServer := server.NewServer(container, logger)
-
-	// Start the server with health checks
+	container := bootstrap.NewContainer(cfg, dbClient)
+	httpLogger := logger.Named("http").With(zap.String("component", "HTTP"))
+	httpServer := server.NewServer(container, httpLogger)
 	go httpServer.Start()
 
 	// Wait for the interrupt signal
 	<-ctx.Done()
 
 	// Gracefully shutdown the HTTP server
-	logger.Info("Shutting down server...")
+	logger.Info("Shutting down HTTP server...")
 	if err := httpServer.Shutdown(); err != nil {
-		logger.Fatal("Server forced to shutdown", zap.Error(err))
+		logger.Fatal("HTTP Server forced to shutdown", zap.Error(err))
 	}
 
-	logger.Info("Server exiting")
+	logger.Info("HTTP server exiting")
 }

@@ -24,7 +24,7 @@ func NewServer(container *bootstrap.Container, logger *zap.Logger) *Server {
 
 	return &Server{
 		Router: router,
-		logger: logger.Named("http-server"),
+		logger: logger,
 		server: &http.Server{
 			Addr: ":" + container.Config.Port,
 		},
@@ -32,7 +32,7 @@ func NewServer(container *bootstrap.Container, logger *zap.Logger) *Server {
 }
 
 func (s *Server) Start() {
-	s.logger.Info("Starting the server")
+	s.logger.Info("Starting the HTTP server")
 
 	// Attach recovery & log middleware
 	s.Router.Use(ginzap.Ginzap(s.logger, time.RFC3339, true), ginzap.RecoveryWithZap(s.logger, true))
@@ -41,13 +41,13 @@ func (s *Server) Start() {
 
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			s.logger.Fatal("Failed to listen and serve", zap.Error(err))
+			s.logger.Fatal("Failed to listen and serve for: HTTP", zap.Error(err))
 		}
 	}()
 }
 
 func (s *Server) Shutdown() error {
-	s.logger.Info("Shutting down the server")
+	s.logger.Info("Shutting down the HTTP server")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
