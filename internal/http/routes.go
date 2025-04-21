@@ -1,10 +1,10 @@
-package server
+package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-rest/internal/api/handlers"
-	"go-rest/internal/api/server/endpoints"
 	"go-rest/internal/bootstrap"
+	"go-rest/internal/handlers"
+	"go-rest/internal/http/endpoints"
 	"go-rest/pkg/database"
 	"net/http"
 )

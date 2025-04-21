@@ -1,8 +1,8 @@
 package bootstrap
 
 import (
-	"go-rest/internal/api/services"
 	"go-rest/internal/repositories"
+	"go-rest/internal/services"
 	"go-rest/pkg/config"
 	"go.mongodb.org/mongo-driver/mongo"
 )

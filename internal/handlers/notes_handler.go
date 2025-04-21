@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"go-rest/internal/api/services"
 	"go-rest/internal/models"
+	"go-rest/internal/services"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 

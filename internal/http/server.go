@@ -1,12 +1,12 @@
-package server
+package http
 
 import (
 	"context"
 	"errors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
-	"go-rest/internal/api/middleware"
 	"go-rest/internal/bootstrap"
+	"go-rest/internal/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"time"

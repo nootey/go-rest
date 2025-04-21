@@ -6,8 +6,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/mongodb"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/spf13/cobra"
-	"go-rest/internal/api/server"
 	"go-rest/internal/bootstrap"
+	"go-rest/internal/http"
 	"go-rest/pkg/config"
 	"go-rest/pkg/database"
 	"go-rest/pkg/database/seeders"
@@ -98,7 +98,7 @@ func runServer() {
 	// Initialize the server with the logger
 	container := bootstrap.NewContainer(cfg, dbClient)
 	httpLogger := logger.Named("http").With(zap.String("component", "HTTP"))
-	httpServer := server.NewServer(container, httpLogger)
+	httpServer := http.NewServer(container, httpLogger)
 	go httpServer.Start()
 
 	// Wait for the interrupt signal
