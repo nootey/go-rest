@@ -36,7 +36,7 @@ func (h *NotesHandler) CreateNote(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessMessage("Note has been created successfully!", "Create success", 200)
+	utils.SuccessMessage("Note has been created successfully!", "Create success", http.StatusOK)(c.Writer, c.Request)
 }
 
 func (h *NotesHandler) GetNotes(c *gin.Context) {

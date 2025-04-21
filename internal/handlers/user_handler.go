@@ -41,5 +41,5 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessMessage(user.Email, "User created successfully", http.StatusOK)(c.Writer, c.Request)
+	utils.SuccessMessage(user.Email, "Create success", http.StatusOK)(c.Writer, c.Request)
 }
