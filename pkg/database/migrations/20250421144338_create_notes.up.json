@@ -1,0 +1,17 @@
+[
+    {
+        "create": "notes",
+        "validator": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["title"],
+                "properties": {
+                    "title": { "bsonType": "string" },
+                    "description": { "bsonType": "string" },
+                    "created_at": { "bsonType": "date" },
+                    "updated_at": { "bsonType": "date" }
+                }
+            }
+        }
+    }
+]

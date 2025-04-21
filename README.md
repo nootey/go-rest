@@ -10,8 +10,6 @@ The solution is fully containerized using Docker and Docker compose.
 
 The application can be deployed using Docker or running the app directly.
 
-It also supports auto reload with Air.
-
 ### Using Docker Compose
 
 Deploy the solution using Docker compose:
@@ -23,18 +21,12 @@ docker-compose up --build -d
 ### Running the app locally
 To run the app directly, you need to have a MongoDB instance running. 
 
-You can also use 'air' and run it with hot reload.
+A docker file is provided.
 
 ## Configuration
 The application can be configured through environment variables. 
-The following options can be configured:
 
-```
-MONGO_URI=mongodb://root:root@localhost:27017/go-rest?authSource=admin
-MONGO_DB=go-rest 
-PORT=8080
-RELEASE=local
-```
+More info [here](./docs/deployment/environment.md)
 
 ## Project Structure
 The project is structured in the following way:
@@ -45,29 +37,28 @@ project-root/
 │       ├── main.go
 │       └── build/
 │           └── main.exe
+├── docs/                # Project documentation
+├── docker-files/        # Docker configuration and related files
 ├── internal/
-│   ├── api/
-│   │   ├── handlers/
-│   │   │   └── ... # Handlers
-│   │   └── middleware/
-│   │       └── api.go
-│   ├── server/
-│   │   ├── server.go
-│   │   └── endpoints.go
-│   ├── models/
+│   ├── handlers/
+│   │   └── ... # Request handlers
+│   ├── middleware/
+│   │   └── ... # Middleware logic
+│   ├── services/
+│   │   └── ... # Business logic/services
 │   ├── repositories/
-│   │   ├── mongo/
-│   │   │   └── main.go
-│   │   └── ... # Other repositories
-│   ├── utils/
-│   │   └── ... # Helper functions
-└── pkg/
-    ├── config/         # Application configuration files
-    └── ...             # Compiled proto files
+│   │   └── ... # Database operations
+│   ├── bootstrap/
+│   │   └── ... # Initialization logic
+│   └── http/
+│       └── endpoints.go # HTTP route definitions
+├── pkg/
+│   ├── config/          # Application configuration files
+│   ├── database/        # DB connection and related logic
+│   └── utils/           # Shared utility functions
+
 ```
 
 ## Notes
 
 - This template is customizable and subject to preference
-- API should be secured
-- Validation should be added
