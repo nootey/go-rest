@@ -1,7 +1,7 @@
 # Default target runs the HTTP server
 default: run
 
-# Run the combined server (both HTTP and gRPC)
+# Run the HTTP server
 run:
 	go run cmd/app/main.go
 
