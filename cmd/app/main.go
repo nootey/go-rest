@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/spf13/cobra"
 	"go-rest/internal/api/server"
 	"go-rest/internal/bootstrap"
 	"go-rest/pkg/config"
@@ -12,7 +13,25 @@ import (
 	"syscall"
 )
 
+var rootCmd = &cobra.Command{
+	Use:     "go-rest",
+	Short:   "go-rest",
+	Version: "1.0.0",
+	Run: func(cmd *cobra.Command, args []string) {
+		runServer()
+	},
+}
+func init() {
+	cobra.OnInitialize()
+}
 func main() {
+	err := rootCmd.Execute()
+	if err != nil {
+		zap.L().Fatal("Failed to execute the root command", zap.Error(err))
+	}
+}
+
+func runServer() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
