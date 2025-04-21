@@ -4,3 +4,4 @@
 /logs/*
 
 /tmp/
+/pkg/config/.seeder.credentials
