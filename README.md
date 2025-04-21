@@ -37,25 +37,26 @@ project-root/
 │       ├── main.go
 │       └── build/
 │           └── main.exe
+├── docs/                # Project documentation
+├── docker-files/        # Docker configuration and related files
 ├── internal/
-│   ├── api/
-│   │   ├── handlers/
-│   │   │   └── ... # Handlers
-│   │   └── middleware/
-│   │       └── api.go
-│   ├── server/
-│   │   ├── server.go
-│   │   └── endpoints.go
-│   ├── models/
+│   ├── handlers/
+│   │   └── ... # Request handlers
+│   ├── middleware/
+│   │   └── ... # Middleware logic
+│   ├── services/
+│   │   └── ... # Business logic/services
 │   ├── repositories/
-│   │   ├── mongo/
-│   │   │   └── main.go
-│   │   └── ... # Other repositories
-│   ├── utils/
-│   │   └── ... # Helper functions
-└── pkg/
-    ├── config/         # Application configuration files
-    └── ...             # Compiled proto files
+│   │   └── ... # Database operations
+│   ├── bootstrap/
+│   │   └── ... # Initialization logic
+│   └── http/
+│       └── endpoints.go # HTTP route definitions
+├── pkg/
+│   ├── config/          # Application configuration files
+│   ├── database/        # DB connection and related logic
+│   └── utils/           # Shared utility functions
+
 ```
 
 ## Notes
