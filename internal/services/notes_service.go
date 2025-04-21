@@ -8,7 +8,7 @@ type NotesService struct {
 	Repo *repositories.NotesRepository
 }
 
-func NewtNotesService(
+func NewNotesService(
 	repo *repositories.NotesRepository,
 ) *NotesService {
 	return &NotesService{

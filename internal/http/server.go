@@ -3,10 +3,10 @@ package http
 import (
 	"context"
 	"errors"
+	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go-rest/internal/bootstrap"
-	"go-rest/internal/middleware"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -63,21 +63,32 @@ func (s *Server) Shutdown() error {
 func NewRouter(container *bootstrap.Container) *gin.Engine {
 
 	var router *gin.Engine
-	//var domainProtocol string
+	var domainProtocol string
 
 	if container.Config.Release {
 		gin.SetMode(gin.ReleaseMode)
 		router = gin.New()
-		//domainProtocol = "https://"
+		domainProtocol = "https://"
 
 	} else {
 		router = gin.Default()
-		//domainProtocol = "http://"
+		domainProtocol = "http://"
 	}
+
+	// Setup CORS
+	corsConfig := cors.DefaultConfig()
+
+	corsConfig.AllowOrigins = []string{
+		domainProtocol + container.Config.WebClientDomain,
+		domainProtocol + container.Config.WebClientDomain + ":" + container.Config.WebClientPort,
+	}
+	corsConfig.AllowMethods = []string{"GET", "POST", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "go-rest"}
+	corsConfig.AllowCredentials = true
+	router.Use(cors.New(corsConfig))
 
 	// Global middlewares
 	router.Use(gin.Recovery())
-	router.Use(middleware.InitRateLimitMiddleware())
 
 	// Create RouteInitializer and initialize endpoints
 	routeInitializer := NewRouteInitializerHTTP(router, container)

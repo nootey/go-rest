@@ -5,12 +5,15 @@ import (
 	"github.com/kamva/mgm/v3"
 	"go-rest/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type NotesRepository struct{}
+type NotesRepository struct {
+	DB *mongo.Client
+}
 
-func NewNotesRepository() *NotesRepository {
-	return &NotesRepository{}
+func NewNotesRepository(db *mongo.Client) *NotesRepository {
+	return &NotesRepository{DB: db}
 }
 
 func (repo *NotesRepository) CreateNewNote(note *models.Note) error {

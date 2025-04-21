@@ -6,8 +6,8 @@ import (
 
 type Note struct {
 	mgm.DefaultModel `bson:",inline"`
-	Title            string `json:"title" bson:"title"`
-	Description      string `json:"description" bson:"description"`
+	Title            string `bson:"title" json:"title" binding:"required"`
+	Description      string `bson:"description" json:"description"`
 }
 
 func NewNote(title string, description string) *Note {

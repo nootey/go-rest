@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"go-rest/internal/middleware"
 	"go-rest/internal/repositories"
 	"go-rest/internal/services"
 	"go-rest/pkg/config"
@@ -10,18 +11,29 @@ import (
 type Container struct {
 	Config       *config.Config
 	DB           *mongo.Client
+	Middleware   *middleware.WebClientMiddleware
 	NotesService *services.NotesService
+	UserService  *services.UserService
+	AuthService  *services.AuthService
 }
 
 func NewContainer(cfg *config.Config, db *mongo.Client) *Container {
 
-	notesRepo := repositories.NewNotesRepository()
+	webClientMiddleware := middleware.NewWebClientMiddleware(cfg)
 
-	notesService := services.NewtNotesService(notesRepo)
+	notesRepo := repositories.NewNotesRepository(db)
+	userRepo := repositories.NewUserRepository(db)
+
+	notesService := services.NewNotesService(notesRepo)
+	userService := services.NewUserService(cfg, userRepo)
+	authService := services.NewAuthService(cfg, userRepo, webClientMiddleware)
 
 	return &Container{
 		Config:       cfg,
 		DB:           db,
+		Middleware:   webClientMiddleware,
 		NotesService: notesService,
+		UserService:  userService,
+		AuthService:  authService,
 	}
 }

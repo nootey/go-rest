@@ -30,10 +30,23 @@ func (r *RouteInitializerHTTP) InitEndpoints() {
 	})
 
 	noteHandler := handlers.NewNoteHandler(r.Container.NotesService)
+	userHandler := handlers.NewUserHandler(r.Container.UserService)
+	authHandler := handlers.NewAuthHandler(r.Container.AuthService)
 
-	authGroup := r.Router.Group(apiPrefixV1)
+	authGroup := r.Router.Group(apiPrefixV1, r.Container.AuthService.WebClientMiddleware.WebClientAuthentication())
 	{
-		notesRoutes := authGroup.Group("/notes")
+		userRoutes := authGroup.Group("/users")
+		endpoints.UserRoutes(userRoutes, userHandler)
+	}
+
+	// Public routes
+	publicGroup := r.Router.Group(apiPrefixV1)
+	{
+		publicAuthRoutes := publicGroup.Group("/auth")
+		endpoints.PublicAuthRoutes(publicAuthRoutes, authHandler)
+
+		// These are public, just as an example
+		notesRoutes := publicGroup.Group("/notes")
 		endpoints.NotesRoutes(notesRoutes, noteHandler)
 
 	}
@@ -41,7 +54,7 @@ func (r *RouteInitializerHTTP) InitEndpoints() {
 }
 
 func rootHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "SPH server is running!"})
+	c.JSON(http.StatusOK, gin.H{"message": "HTTP server is running!"})
 }
 
 func healthCheck(c *gin.Context) {

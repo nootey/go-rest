@@ -8,10 +8,13 @@ import (
 )
 
 type Config struct {
-	MongoURI     string
-	DatabaseName string
-	Port         string
-	Release      bool
+	MongoURI           string
+	DatabaseName       string
+	Port               string
+	Release            bool
+	WebClientDomain    string
+	WebClientPort      string
+	JwtWebClientAccess string
 }
 
 func LoadConfig() *Config {
@@ -28,9 +31,12 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		MongoURI:     os.Getenv("MONGO_URI"),
-		DatabaseName: os.Getenv("DATABASE_NAME"),
-		Port:         os.Getenv("PORT"),
-		Release:      release,
+		MongoURI:           os.Getenv("MONGO_URI"),
+		DatabaseName:       os.Getenv("DATABASE_NAME"),
+		Port:               os.Getenv("PORT"),
+		WebClientDomain:    os.Getenv("WEB_CLIENT_DOMAIN"),
+		WebClientPort:      os.Getenv("WEB_CLIENT_PORT"),
+		JwtWebClientAccess: os.Getenv("JWT_WEB_CLIENT_ACCESS"),
+		Release:            release,
 	}
 }
