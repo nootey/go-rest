@@ -1,23 +1,23 @@
 package handlers
 
 import (
+	"go-rest/internal/api/services"
 	"go-rest/internal/models"
-	"go-rest/internal/repositories"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type NoteHandler struct {
-	repository *repositories.NoteRepository
+type NotesHandler struct {
+	service *services.NotesService
 }
 
-func NewNoteHandler(repo *repositories.NoteRepository) *NoteHandler {
-	return &NoteHandler{repository: repo}
+func NewNoteHandler(service *services.NotesService) *NotesHandler {
+	return &NotesHandler{service: service}
 }
 
-func (h *NoteHandler) CreateNote(c *gin.Context) {
+func (h *NotesHandler) CreateNote(c *gin.Context) {
 
 	var request map[string]interface{}
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -32,7 +32,7 @@ func (h *NoteHandler) CreateNote(c *gin.Context) {
 
 	note := models.NewNote(request["title"].(string), request["description"].(string))
 
-	err := h.repository.CreateNewNote(note)
+	err := h.service.Repo.CreateNewNote(note)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -40,8 +40,8 @@ func (h *NoteHandler) CreateNote(c *gin.Context) {
 	c.JSON(http.StatusOK, bson.M{"Status": "Note has been created successfully!"})
 }
 
-func (h *NoteHandler) GetNotes(c *gin.Context) {
-	notes, err := h.repository.GetAllNotes()
+func (h *NotesHandler) GetNotes(c *gin.Context) {
+	notes, err := h.service.Repo.GetAllNotes()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

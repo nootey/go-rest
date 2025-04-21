@@ -7,13 +7,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type NoteRepository struct{}
+type NotesRepository struct{}
 
-func NewNoteRepository() *NoteRepository {
-	return &NoteRepository{}
+func NewNotesRepository() *NotesRepository {
+	return &NotesRepository{}
 }
 
-func (repo *NoteRepository) CreateNewNote(note *models.Note) error {
+func (repo *NotesRepository) CreateNewNote(note *models.Note) error {
 
 	if note == nil {
 		return fmt.Errorf("note is nil")
@@ -29,7 +29,7 @@ func (repo *NoteRepository) CreateNewNote(note *models.Note) error {
 	return mgm.Coll(note).Create(note)
 }
 
-func (repo *NoteRepository) GetAllNotes() ([]models.Note, error) {
+func (repo *NotesRepository) GetAllNotes() ([]models.Note, error) {
 	var notes []models.Note
 	err := mgm.Coll(&models.Note{}).SimpleFind(&notes, bson.M{})
 	if err != nil {

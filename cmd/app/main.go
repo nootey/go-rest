@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"go-rest/internal/api/server"
+	"go-rest/internal/bootstrap"
 	"go-rest/internal/repositories/mongo"
 	"go-rest/pkg/config"
 	"go.uber.org/zap"
@@ -33,7 +34,8 @@ func main() {
 	logger.Info("Connected to the database")
 
 	// Initialize the server with the logger
-	httpServer := server.NewServer(cfg, logger)
+	container := bootstrap.NewContainer(cfg)
+	httpServer := server.NewServer(container, logger)
 
 	// Start the server with health checks
 	go httpServer.Start()

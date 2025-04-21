@@ -6,7 +6,7 @@ import (
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go-rest/internal/api/middleware"
-	goConfig "go-rest/pkg/config"
+	"go-rest/internal/bootstrap"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -18,15 +18,15 @@ type Server struct {
 	logger *zap.Logger
 }
 
-func NewServer(cfg *goConfig.Config, logger *zap.Logger) *Server {
+func NewServer(container *bootstrap.Container, logger *zap.Logger) *Server {
 	// Create a Router and attach middleware
-	router := NewRouter(cfg)
+	router := NewRouter(container)
 
 	return &Server{
 		Router: router,
 		logger: logger.Named("http-server"),
 		server: &http.Server{
-			Addr: ":" + cfg.Port,
+			Addr: ":" + container.Config.Port,
 		},
 	}
 }
@@ -60,24 +60,28 @@ func (s *Server) Shutdown() error {
 	return nil
 }
 
-func NewRouter(cfg *goConfig.Config) *gin.Engine {
+func NewRouter(container *bootstrap.Container) *gin.Engine {
 
 	var router *gin.Engine
+	//var domainProtocol string
 
-	if cfg.Release == "production" {
+	if container.Config.Release {
 		gin.SetMode(gin.ReleaseMode)
 		router = gin.New()
+		//domainProtocol = "https://"
 
 	} else {
 		router = gin.Default()
+		//domainProtocol = "http://"
 	}
 
 	// Global middlewares
 	router.Use(gin.Recovery())
 	router.Use(middleware.InitRateLimitMiddleware())
 
-	// Initialize API routes
-	InitEndpoints(router, cfg)
+	// Create RouteInitializer and initialize endpoints
+	routeInitializer := NewRouteInitializerHTTP(router, container)
+	routeInitializer.InitEndpoints()
 
 	return router
 }

@@ -4,13 +4,14 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 )
 
 type Config struct {
 	MongoURI      string
 	MongoDatabase string
 	Port          string
-	Release       string
+	Release       bool
 }
 
 func LoadConfig() *Config {
@@ -21,10 +22,15 @@ func LoadConfig() *Config {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
+	release, err := strconv.ParseBool(os.Getenv("RELEASE"))
+	if err != nil {
+		log.Fatalf("Invalid release mode: %v", err)
+	}
+
 	return &Config{
 		MongoURI:      os.Getenv("MONGO_URI"),
 		MongoDatabase: os.Getenv("MONGO_DB"),
 		Port:          os.Getenv("PORT"),
-		Release:       os.Getenv("RELEASE"),
+		Release:       release,
 	}
 }
