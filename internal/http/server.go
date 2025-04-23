@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"go-rest/internal/bootstrap"
 	"go.uber.org/zap"
 	"net/http"
@@ -86,6 +87,10 @@ func NewRouter(container *bootstrap.Container) *gin.Engine {
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "go-rest"}
 	corsConfig.AllowCredentials = true
 	router.Use(cors.New(corsConfig))
+
+	// Prometheus metrics middleware
+	p := ginprometheus.NewPrometheus("go_rest")
+	p.Use(router)
 
 	// Global middlewares
 	router.Use(gin.Recovery())
