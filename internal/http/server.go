@@ -90,7 +90,7 @@ func NewRouter(container *bootstrap.Container) *gin.Engine {
 	// Global middlewares
 	router.Use(gin.Recovery())
 
-	// Create RouteInitializer and initialize endpoints
+	// Create RouteInitializer and initialize v1
 	routeInitializer := NewRouteInitializerHTTP(router, container)
 	routeInitializer.InitEndpoints()
 
