@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-rest/internal/bootstrap"
 	"go-rest/internal/handlers"
-	"go-rest/internal/http/endpoints"
+	v1 "go-rest/internal/http/v1"
 	"go-rest/pkg/database"
 	"net/http"
 )
@@ -22,32 +22,37 @@ func NewRouteInitializerHTTP(router *gin.Engine, container *bootstrap.Container)
 }
 
 func (r *RouteInitializerHTTP) InitEndpoints() {
-	apiPrefixV1 := "/api/v1"
+	api := r.Router.Group("/api")
+
+	// Version 1
+	_v1 := api.Group("/v1")
+	r.initV1Routes(_v1)
+}
+
+func (r *RouteInitializerHTTP) initV1Routes(_v1 *gin.RouterGroup) {
 
 	r.Router.GET("/", rootHandler)
-	r.Router.GET(apiPrefixV1+"/health", func(c *gin.Context) {
-		healthCheck(c)
-	})
+	_v1.GET("/health", healthCheck)
 
 	noteHandler := handlers.NewNoteHandler(r.Container.NotesService)
 	userHandler := handlers.NewUserHandler(r.Container.UserService)
 	authHandler := handlers.NewAuthHandler(r.Container.AuthService)
 
-	authGroup := r.Router.Group(apiPrefixV1, r.Container.AuthService.WebClientMiddleware.WebClientAuthentication())
+	authGroup := _v1.Group("/", r.Container.AuthService.WebClientMiddleware.WebClientAuthentication())
 	{
 		userRoutes := authGroup.Group("/users")
-		endpoints.UserRoutes(userRoutes, userHandler)
+		v1.UserRoutes(userRoutes, userHandler)
 	}
 
 	// Public routes
-	publicGroup := r.Router.Group(apiPrefixV1)
+	publicGroup := _v1.Group("")
 	{
 		publicAuthRoutes := publicGroup.Group("/auth")
-		endpoints.PublicAuthRoutes(publicAuthRoutes, authHandler)
+		v1.PublicAuthRoutes(publicAuthRoutes, authHandler)
 
 		// These are public, just as an example
 		notesRoutes := publicGroup.Group("/notes")
-		endpoints.NotesRoutes(notesRoutes, noteHandler)
+		v1.NotesRoutes(notesRoutes, noteHandler)
 
 	}
 
