@@ -5,7 +5,7 @@
 #### Running the server
 You can run the server with the following command:
 ```shell
-go run cmd/app/main.go
+go run ./cmd/app server
 ```
 
 Alternatively, you can use the provided Makefile.
