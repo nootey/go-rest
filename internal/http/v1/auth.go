@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	httpHandlers "go-rest/internal/handlers"
+	httpHandlers "go-rest/internal/http/handlers"
 )
 
 func PublicAuthRoutes(apiGroup *gin.RouterGroup, handler *httpHandlers.AuthHandler) {

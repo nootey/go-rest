@@ -34,28 +34,22 @@ The project is structured in the following way:
 project-root/
 ├── cmd/
 │   └── app/
-│       ├── main.go
-│       └── build/
-│           └── main.exe
-├── docs/                # Project documentation
-├── docker-files/        # Docker configuration and related files
+│       ├── main.go # Application entry point
+│       └── ... # Executable commands
+├── docs/                         # Project documentation
+├── docker-files/                 # Docker configuration and related files
 ├── internal/
-│   ├── handlers/
-│   │   └── ... # Request handlers
-│   ├── middleware/
-│   │   └── ... # Middleware logic
-│   ├── services/
-│   │   └── ... # Business logic/services
-│   ├── repositories/
-│   │   └── ... # Database operations
-│   ├── bootstrap/
-│   │   └── ... # Initialization logic
+│   ├── bootstrap/                # Application initialization logic
+│   ├── middleware/               # Middleware logic
+│   ├── repositories/             # Data access and database operations
+│   ├── services/                 # Business logic and services
 │   └── http/
-│       └── endpoints.go # HTTP route definitions
+│       ├── handlers/             # HTTP request handlers
+│       └── vx/                   # Versioned HTTP route definitions (e.g., v1, v2)
 ├── pkg/
-│   ├── config/          # Application configuration files
-│   ├── database/        # DB connection and related logic
-│   └── utils/           # Shared utility functions
+│   ├── config/                   # Application configuration logic and files
+│   ├── database/                 # Database connection and related logic
+│   └── utils/                    # Shared utility functions (helpers, formatters, etc.)
 
 ```
 

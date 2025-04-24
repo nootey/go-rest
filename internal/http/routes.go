@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"go-rest/internal/bootstrap"
-	"go-rest/internal/handlers"
+	httpHandlers "go-rest/internal/http/handlers"
 	v1 "go-rest/internal/http/v1"
 	"net/http"
 )
@@ -32,9 +32,9 @@ func (r *RouteInitializerHTTP) initV1Routes(_v1 *gin.RouterGroup) {
 
 	r.Router.GET("/", rootHandler)
 
-	noteHandler := handlers.NewNoteHandler(r.Container.NotesService)
-	userHandler := handlers.NewUserHandler(r.Container.UserService)
-	authHandler := handlers.NewAuthHandler(r.Container.AuthService)
+	noteHandler := httpHandlers.NewNoteHandler(r.Container.NotesService)
+	userHandler := httpHandlers.NewUserHandler(r.Container.UserService)
+	authHandler := httpHandlers.NewAuthHandler(r.Container.AuthService)
 
 	authGroup := _v1.Group("/", r.Container.AuthService.WebClientMiddleware.WebClientAuthentication())
 	{
