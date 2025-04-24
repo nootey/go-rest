@@ -35,6 +35,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	user.ModelVersion = models.ModelVersions["User"]
 	err := h.Service.CreateUser(&user)
 	if err != nil {
 		utils.ErrorMessage("create error", err.Error(), http.StatusInternalServerError)(c, err)

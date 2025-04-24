@@ -26,8 +26,9 @@ func (h *NotesHandler) CreateNote(c *gin.Context) {
 	}
 
 	note := &models.Note{
-		Title:       request["title"].(string),
-		Description: request["description"].(string),
+		ModelVersion: models.ModelVersions["Notes"],
+		Title:        request["title"].(string),
+		Description:  request["description"].(string),
 	}
 
 	err := h.service.CreateNote(note)

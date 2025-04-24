@@ -7,6 +7,7 @@ import (
 
 type User struct {
 	mgm.DefaultModel `bson:",inline"`
+	ModelVersion     int `bson:"model_version" json:"model_version"`
 
 	FirstName     string     `bson:"first_name" json:"first_name" binding:"required"`
 	LastName      string     `bson:"last_name" json:"last_name" binding:"required"`
