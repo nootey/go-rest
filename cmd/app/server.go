@@ -2,16 +2,14 @@ package main
 
 import (
 	"context"
+	"github.com/spf13/cobra"
 	"go-rest/internal/bootstrap"
 	"go-rest/internal/http"
 	"go-rest/pkg/config"
 	"go-rest/pkg/database"
 	"go.uber.org/zap"
-	"log"
 	"os/signal"
 	"syscall"
-
-	"github.com/spf13/cobra"
 )
 
 var serverCmd = &cobra.Command{
@@ -30,19 +28,23 @@ func runServer() {
 	// Initialize logger
 	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("Error initializing logger: %v", err)
+		panic("Failed to initialize logger: " + err.Error())
 	}
 	defer logger.Sync()
 
 	cfg := config.LoadConfig()
-	logger.Info("Loaded the configuration", zap.Any("config", cfg))
+	logger.Info("Configuration loaded",
+		zap.String("port", cfg.Port),
+		zap.String("database", cfg.DatabaseName),
+		zap.Bool("release", cfg.Release),
+	)
 
 	dbClient, err := database.ConnectToDatabase(cfg)
 	if err != nil {
-		log.Fatalf("Database connection Error: %v", err)
+		logger.Fatal("Database connection failed", zap.Error(err))
 	}
 	defer database.DisconnectDatabase()
-	logger.Info("Connected to the database")
+	logger.Info("Successfully connected to the database")
 
 	// Initialize the server with the logger
 	container := bootstrap.NewContainer(cfg, dbClient)
@@ -54,9 +56,9 @@ func runServer() {
 	<-ctx.Done()
 
 	// Gracefully shutdown the HTTP server
-	logger.Info("Shutting down HTTP server...")
+	logger.Info("Interrupt signal received, shutting down HTTP server...")
 	if err := httpServer.Shutdown(); err != nil {
-		logger.Fatal("HTTP Server forced to shutdown", zap.Error(err))
+		logger.Fatal("HTTP server shutdown failed", zap.Error(err))
 	}
 
 	logger.Info("HTTP server exiting")

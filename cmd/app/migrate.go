@@ -9,7 +9,6 @@ import (
 	"go-rest/pkg/config"
 	"go-rest/pkg/database"
 	"go.uber.org/zap"
-	"log"
 	"os"
 	"strconv"
 )
@@ -30,9 +29,10 @@ var migrateCmd = &cobra.Command{
 func runMigrations(migrationType string) {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("Failed to initialize logger: %v", err)
+		panic("Failed to initialize logger: " + err.Error())
 	}
 	defer logger.Sync()
+
 	logger.Info("Starting database migrations")
 
 	cfg := config.LoadConfig()
@@ -40,11 +40,11 @@ func runMigrations(migrationType string) {
 
 	dbClient, err := database.ConnectToDatabase(cfg)
 	if err != nil {
-		log.Fatalf("Failed to connect to MongoDB: %v", err)
+		logger.Fatal("Failed to connect to MongoDB", zap.Error(err))
 	}
 	defer func() {
 		if err := dbClient.Disconnect(context.Background()); err != nil {
-			log.Printf("Error while disconnecting MongoDB client: %v", err)
+			logger.Error("Error while disconnecting MongoDB client", zap.Error(err))
 		}
 	}()
 
@@ -52,7 +52,7 @@ func runMigrations(migrationType string) {
 		DatabaseName: cfg.DatabaseName,
 	})
 	if err != nil {
-		log.Fatalf("Failed to create MongoDB driver: %v", err)
+		logger.Fatal("Failed to create MongoDB driver", zap.Error(err))
 	}
 
 	migrationsDir := "./pkg/database/migrations"
@@ -64,7 +64,7 @@ func runMigrations(migrationType string) {
 		driver,
 	)
 	if err != nil {
-		log.Fatalf("Failed to initialize migrate instance: %v", err)
+		logger.Fatal("Failed to initialize migrate instance", zap.Error(err))
 	}
 
 	// Run based on the type
@@ -81,7 +81,7 @@ func runMigrations(migrationType string) {
 	case "fresh":
 		err = database.ResetDatabase(dbClient, cfg.DatabaseName)
 		if err != nil {
-			log.Fatalf("Failed to reset database: %v", err)
+			logger.Fatal("Failed to reset database", zap.Error(err))
 		}
 		err = m.Up()
 		if err == nil || err == migrate.ErrNoChange {
@@ -92,18 +92,18 @@ func runMigrations(migrationType string) {
 		err = m.Down()
 	case "force":
 		versionStr := os.Getenv("VERSION")
-		version, err := strconv.Atoi(versionStr)
-		if err != nil {
-			log.Fatalf("Invalid version for force: %v", err)
+		version, convErr := strconv.Atoi(versionStr)
+		if convErr != nil {
+			logger.Fatal("Invalid version format for force", zap.String("value", versionStr), zap.Error(convErr))
 		}
 		err = m.Force(version)
 	default:
-		log.Fatalf("Invalid migration type: %s", migrationType)
+		logger.Fatal("Invalid migration type", zap.String("type", migrationType))
 	}
 
 	if err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("Migration error: %v", err)
+		logger.Fatal("Migration failed", zap.String("type", migrationType), zap.Error(err))
 	}
 
-	logger.Info("Migrations completed successfully")
+	logger.Info("Migrations completed successfully", zap.String("type", migrationType))
 }

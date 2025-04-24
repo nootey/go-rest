@@ -7,7 +7,6 @@ import (
 	"go-rest/pkg/database"
 	"go-rest/pkg/database/seeders"
 	"go.uber.org/zap"
-	"log"
 )
 
 var seedCmd = &cobra.Command{
@@ -35,16 +34,17 @@ func isValidSeedType(seedType string) bool {
 
 func runSeeders(seedType string) {
 
-	// Validate seed type
-	if !validSeedTypes[seedType] {
-		log.Fatalf("Invalid seed type provided: %s.", seedType)
-	}
-
 	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("Failed to initialize logger: %v", err)
+		panic("Failed to initialize logger: " + err.Error()) // can't log if logger failed
 	}
 	defer logger.Sync()
+
+	// Validate seed type
+	if !isValidSeedType(seedType) {
+		logger.Fatal("Invalid seed type provided", zap.String("seedType", seedType))
+	}
+
 	logger.Info("Starting database seeding")
 
 	cfg := config.LoadConfig()
@@ -52,30 +52,27 @@ func runSeeders(seedType string) {
 
 	dbClient, err := database.ConnectToDatabase(cfg)
 	if err != nil {
-		log.Fatalf("Failed to connect to MongoDB: %v", err)
+		logger.Fatal("Failed to connect to MongoDB", zap.Error(err))
 	}
 	defer func() {
 		if err := dbClient.Disconnect(context.Background()); err != nil {
-			log.Printf("Error while disconnecting MongoDB client: %v", err)
+			logger.Error("Error while disconnecting MongoDB client", zap.Error(err))
 		}
 	}()
 
 	ctx := context.Background()
 
 	switch seedType {
-	case "full":
-		err = seeders.SeedDatabase(ctx, dbClient, "full", cfg.DatabaseName)
+	case "full", "basic":
+		err = seeders.SeedDatabase(ctx, dbClient, seedType, cfg.DatabaseName)
 		if err != nil {
-			log.Fatalf("Failed to seed database: %v", err)
+			logger.Fatal("Failed to seed database", zap.String("type", seedType), zap.Error(err))
 		}
-	case "basic":
-		err = seeders.SeedDatabase(ctx, dbClient, "basic", cfg.DatabaseName)
-		if err != nil {
-			log.Fatalf("Failed to seed database: %v", err)
-		}
+		logger.Info("Database seeding completed for type: %s", zap.String("type", seedType))
 	case "help":
-		log.Fatal("\n Provide an additional argument to the seeder function. Valid arguments are: full, basic")
+		logger.Fatal("Seeder usage help", zap.Strings("validTypes", []string{"full", "basic"}))
 	default:
-		log.Fatalf("Invalid seeder type: %s", seedType)
+		logger.Fatal("Unhandled seeder type", zap.String("type", seedType))
 	}
+
 }
