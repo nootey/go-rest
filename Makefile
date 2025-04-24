@@ -3,19 +3,19 @@ default: run
 
 # Run the HTTP server
 run:
-	go run cmd/app/main.go
+	go run ./cmd/app server
 
-# Build the binary (you might need to adjust based on which entrypoint you want)
+# Build the binary
 build:
-	go build -o cmd/build/ cmd/app/main.go
+	go build -o ./cmd/build/app ./cmd/app/main.go
 
 # Run database migrations
 migrate:
-	go run cmd/app/main.go migrate $(type)
+	go run ./cmd/app migrate $(type)
 
 # Seed essential tables
 seed:
-	go run cmd/app/main.go seed $(type)
+	go run ./cmd/app seed $(type)
 
 # Clean up binaries
 clean:

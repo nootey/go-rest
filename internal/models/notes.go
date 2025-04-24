@@ -6,6 +6,8 @@ import (
 
 type Note struct {
 	mgm.DefaultModel `bson:",inline"`
-	Title            string `bson:"title" json:"title" binding:"required"`
-	Description      string `bson:"description" json:"description"`
+	ModelVersion     int `bson:"model_version" json:"model_version"`
+	
+	Title       string `bson:"title" json:"title" binding:"required"`
+	Description string `bson:"description" json:"description"`
 }

@@ -1,15 +1,14 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
-type Response struct {
+type APIResponse struct {
 	Title   string `json:"title"`
 	Message string `json:"message"`
+	Code    int    `json:"code"`
 }
 
 type Error struct {
@@ -21,46 +20,25 @@ func (e *Error) Error() string {
 	return e.Message
 }
 
-func SuccessMessage(message string, title string, code int) http.HandlerFunc {
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		response := Response{
-			Title:   title,
-			Message: message,
-		}
-
-		jsonResponse, err := json.Marshal(response)
-		if err != nil {
-			http.Error(w, "Failed to marshal JSON response", http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_, err = w.Write(jsonResponse)
-		if err != nil {
-			return
-		}
+func SuccessMessage(c *gin.Context, message, title string, code int) {
+	response := APIResponse{
+		Title:   title,
+		Message: message,
+		Code:    code,
 	}
+	c.JSON(code, response)
 }
 
-func ErrorMessage(title string, message string, code int) func(c *gin.Context, err error) {
-
-	return func(c *gin.Context, err error) {
-		response := struct {
-			Title   string `json:"title"`
-			Message string `json:"message"`
-			Code    int    `json:"code"`
-		}{
-			Title:   title,
-			Message: message,
-			Code:    code,
-		}
-		if err != nil {
-			PrintError(err)
-		}
-		c.JSON(code, response)
+func ErrorMessage(c *gin.Context, title, message string, code int, err error) {
+	if err != nil {
+		PrintError(err)
 	}
+	response := APIResponse{
+		Title:   title,
+		Message: message,
+		Code:    code,
+	}
+	c.JSON(code, response)
 }
 
 func PrintError(err error) {

@@ -3,9 +3,8 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"go-rest/internal/bootstrap"
-	"go-rest/internal/handlers"
+	httpHandlers "go-rest/internal/http/handlers"
 	v1 "go-rest/internal/http/v1"
-	"go-rest/pkg/database"
 	"net/http"
 )
 
@@ -32,11 +31,10 @@ func (r *RouteInitializerHTTP) InitEndpoints() {
 func (r *RouteInitializerHTTP) initV1Routes(_v1 *gin.RouterGroup) {
 
 	r.Router.GET("/", rootHandler)
-	_v1.GET("/health", healthCheck)
 
-	noteHandler := handlers.NewNoteHandler(r.Container.NotesService)
-	userHandler := handlers.NewUserHandler(r.Container.UserService)
-	authHandler := handlers.NewAuthHandler(r.Container.AuthService)
+	noteHandler := httpHandlers.NewNoteHandler(r.Container.NotesService)
+	userHandler := httpHandlers.NewUserHandler(r.Container.UserService)
+	authHandler := httpHandlers.NewAuthHandler(r.Container.AuthService)
 
 	authGroup := _v1.Group("/", r.Container.AuthService.WebClientMiddleware.WebClientAuthentication())
 	{
@@ -60,30 +58,4 @@ func (r *RouteInitializerHTTP) initV1Routes(_v1 *gin.RouterGroup) {
 
 func rootHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "HTTP server is running!"})
-}
-
-func healthCheck(c *gin.Context) {
-	httpHealthStatus := "healthy"
-	dbStatus := "healthy"
-
-	// Check database connection
-	err := database.PingDatabase()
-	if err != nil {
-		dbStatus = "unhealthy"
-		httpHealthStatus = "degraded"
-	}
-
-	statusCode := http.StatusOK
-	if httpHealthStatus == "degraded" {
-		statusCode = http.StatusServiceUnavailable
-	}
-
-	c.JSON(statusCode, gin.H{
-		"status": gin.H{
-			"api": gin.H{"http": httpHealthStatus},
-			"services": gin.H{
-				"database": gin.H{"mongo": dbStatus},
-			},
-		},
-	})
 }

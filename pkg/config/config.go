@@ -11,6 +11,7 @@ type Config struct {
 	MongoURI           string
 	DatabaseName       string
 	Port               string
+	Host               string
 	Release            bool
 	WebClientDomain    string
 	WebClientPort      string
@@ -30,6 +31,12 @@ func LoadConfig() *Config {
 		log.Fatalf("Invalid release mode: %v", err)
 	}
 
+	host := os.Getenv("HOST")
+	if host == "" {
+		log.Println("Host not defined in environment variables, using global fallback ...")
+		host = "0.0.0.0"
+	}
+
 	return &Config{
 		MongoURI:           os.Getenv("MONGO_URI"),
 		DatabaseName:       os.Getenv("DATABASE_NAME"),
@@ -38,5 +45,6 @@ func LoadConfig() *Config {
 		WebClientPort:      os.Getenv("WEB_CLIENT_PORT"),
 		JwtWebClientAccess: os.Getenv("JWT_WEB_CLIENT_ACCESS"),
 		Release:            release,
+		Host:               os.Getenv("HOST"),
 	}
 }

@@ -34,29 +34,28 @@ The project is structured in the following way:
 project-root/
 ├── cmd/
 │   └── app/
-│       ├── main.go
-│       └── build/
-│           └── main.exe
-├── docs/                # Project documentation
-├── docker-files/        # Docker configuration and related files
+│       ├── main.go                # Application entry point
+│       ├── server.go              # CLI command to start the server
+│       ├── migrate.go             # CLI command for DB migrations
+│       ├── seed.go                # CLI command for seeding data
+│       └── root.go                # Cobra root command setup
+├── docs/                          # Project documentation
+├── docker-files/                  # Docker configuration and related files
 ├── internal/
-│   ├── handlers/
-│   │   └── ... # Request handlers
-│   ├── middleware/
-│   │   └── ... # Middleware logic
-│   ├── services/
-│   │   └── ... # Business logic/services
-│   ├── repositories/
-│   │   └── ... # Database operations
-│   ├── bootstrap/
-│   │   └── ... # Initialization logic
-│   └── http/
-│       └── endpoints.go # HTTP route definitions
+│   ├── bootstrap/                 # Application initialization logic
+│   ├── middleware/                # Middleware logic
+│   ├── repositories/              # Data access and database operations
+│   ├── services/                  # Business logic and services
+│   ├── http/
+│   │   ├── handlers/              # HTTP request handlers
+│   │   └── vx/                    # Versioned HTTP route definitions (e.g., v1, v2)
+│   └── runtime/                   # Application runtime entrypoints
+│       └── server.go              # Runtime logic for launching the HTTP server
+│
 ├── pkg/
-│   ├── config/          # Application configuration files
-│   ├── database/        # DB connection and related logic
-│   └── utils/           # Shared utility functions
-
+│   ├── config/                    # Application configuration logic and files
+│   ├── database/                  # Database connection and related logic
+│   └── utils/                     # Shared utility functions (helpers, etc.)
 ```
 
 ## Notes
