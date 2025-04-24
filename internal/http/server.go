@@ -23,11 +23,13 @@ func NewServer(container *bootstrap.Container, logger *zap.Logger) *Server {
 	// Create a Router and attach middleware
 	router := NewRouter(container)
 
+	addr := container.Config.Host + ":" + container.Config.Port
+
 	return &Server{
 		Router: router,
 		logger: logger,
 		server: &http.Server{
-			Addr: ":" + container.Config.Port,
+			Addr: addr,
 		},
 	}
 }
