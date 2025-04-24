@@ -7,7 +7,7 @@ run:
 
 # Build the binary
 build:
-	go build -o cmd/build/app cmd/app/main.go
+	go build -o ./cmd/build/app ./cmd/app/main.go
 
 # Run database migrations
 migrate:
