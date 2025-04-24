@@ -21,7 +21,7 @@ func (h *NotesHandler) CreateNote(c *gin.Context) {
 
 	var request map[string]interface{}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorMessage(c, "Bind error", err.Error(), http.StatusBadRequest, err)
 		return
 	}
 
@@ -33,17 +33,17 @@ func (h *NotesHandler) CreateNote(c *gin.Context) {
 
 	err := h.service.CreateNote(note)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorMessage(c, "Create error", err.Error(), http.StatusBadRequest, err)
 		return
 	}
 
-	utils.SuccessMessage("Note has been created successfully!", "Create success", http.StatusOK)(c.Writer, c.Request)
+	utils.SuccessMessage(c, "Note has been created successfully!", "Create success", http.StatusOK)
 }
 
 func (h *NotesHandler) GetNotes(c *gin.Context) {
 	notes, err := h.service.Repo.GetAllNotes()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.ErrorMessage(c, "General error", err.Error(), http.StatusInternalServerError, err)
 		return
 	}
 

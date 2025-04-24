@@ -24,7 +24,7 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 func (h *AuthHandler) GetAuthUser(c *gin.Context) {
 	user, err := h.Service.GetCurrentUser(c)
 	if err != nil {
-		utils.ErrorMessage("Error occurred", err.Error(), http.StatusInternalServerError)(c, err)
+		utils.ErrorMessage(c, "Error occurred", err.Error(), http.StatusBadRequest, err)
 		return
 	}
 
@@ -34,18 +34,18 @@ func (h *AuthHandler) GetAuthUser(c *gin.Context) {
 func (h *AuthHandler) LoginUser(c *gin.Context) {
 	var loginForm models.LoginForm
 	if err := c.ShouldBindJSON(&loginForm); err != nil {
-		utils.ErrorMessage("Error occurred", err.Error(), http.StatusBadRequest)(c, err)
+		utils.ErrorMessage(c, "Error occurred", err.Error(), http.StatusBadRequest, err)
 		return
 	}
 
 	user, err := h.Service.UserRepo.GetUserByEmail(loginForm.Email, true)
 	if err != nil || user == nil {
-		utils.ErrorMessage("Error occurred", "Incorrect credentials", http.StatusUnauthorized)(c, err)
+		utils.ErrorMessage(c, "Error occurred", "Incorrect credentials", http.StatusBadRequest, err)
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginForm.Password)); err != nil {
-		utils.ErrorMessage("Error occurred", "Incorrect credentials", http.StatusUnauthorized)(c, err)
+		utils.ErrorMessage(c, "Error occurred", "Incorrect credentials", http.StatusBadRequest, err)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *AuthHandler) LoginUser(c *gin.Context) {
 
 	signedToken, err := token.SignedString(jwtKey)
 	if err != nil {
-		utils.ErrorMessage("Error occurred", "JWT generation failed", http.StatusInternalServerError)(c, nil)
+		utils.ErrorMessage(c, "Error occurred", "JWT generation failed", http.StatusBadRequest, err)
 		return
 	}
 
@@ -108,5 +108,5 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 }
 
 func (h *AuthHandler) LogoutUser(c *gin.Context) {
-	utils.SuccessMessage("", "Logged out", http.StatusOK)(c.Writer, c.Request)
+	utils.SuccessMessage(c, "Logged out", "", http.StatusOK)
 }
