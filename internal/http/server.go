@@ -6,6 +6,9 @@ import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	healthcheck "github.com/tavsec/gin-healthcheck"
+	"github.com/tavsec/gin-healthcheck/checks"
+	"github.com/tavsec/gin-healthcheck/config"
 	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"go-rest/internal/bootstrap"
 	"go.uber.org/zap"
@@ -20,7 +23,7 @@ type Server struct {
 }
 
 func NewServer(container *bootstrap.Container, logger *zap.Logger) *Server {
-	// Create a Router and attach middleware
+
 	router := NewRouter(container)
 
 	addr := container.Config.Host + ":" + container.Config.Port
@@ -37,7 +40,6 @@ func NewServer(container *bootstrap.Container, logger *zap.Logger) *Server {
 func (s *Server) Start() {
 	s.logger.Info("Starting the HTTP server")
 
-	// Attach recovery & log middleware
 	s.Router.Use(ginzap.Ginzap(s.logger, time.RFC3339, true), ginzap.RecoveryWithZap(s.logger, true))
 
 	s.server.Handler = s.Router.Handler()
@@ -65,18 +67,21 @@ func (s *Server) Shutdown() error {
 
 func NewRouter(container *bootstrap.Container) *gin.Engine {
 
-	var router *gin.Engine
+	var r *gin.Engine
 	var domainProtocol string
 
 	if container.Config.Release {
 		gin.SetMode(gin.ReleaseMode)
-		router = gin.New()
+		r = gin.New()
 		domainProtocol = "https://"
 
 	} else {
-		router = gin.Default()
+		r = gin.Default()
 		domainProtocol = "http://"
 	}
+
+	mongoCheck := checks.NewMongoCheck(10, container.DB)
+	healthcheck.New(r, config.DefaultConfig(), []checks.Check{mongoCheck})
 
 	// Setup CORS
 	corsConfig := cors.DefaultConfig()
@@ -88,18 +93,15 @@ func NewRouter(container *bootstrap.Container) *gin.Engine {
 	corsConfig.AllowMethods = []string{"GET", "POST", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "go-rest"}
 	corsConfig.AllowCredentials = true
-	router.Use(cors.New(corsConfig))
+	r.Use(cors.New(corsConfig))
 
-	// Prometheus metrics middleware
 	p := ginprometheus.NewPrometheus("go_rest")
-	p.Use(router)
+	p.Use(r)
 
-	// Global middlewares
-	router.Use(gin.Recovery())
+	r.Use(gin.Recovery())
 
-	// Create RouteInitializer and initialize v1
-	routeInitializer := NewRouteInitializerHTTP(router, container)
+	routeInitializer := NewRouteInitializerHTTP(r, container)
 	routeInitializer.InitEndpoints()
 
-	return router
+	return r
 }
