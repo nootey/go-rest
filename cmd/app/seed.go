@@ -23,15 +23,19 @@ var seedCmd = &cobra.Command{
 	},
 }
 
+var validSeedTypes = map[string]bool{
+	"full":  true,
+	"basic": true,
+	"help":  true,
+}
+
+func isValidSeedType(seedType string) bool {
+	return validSeedTypes[seedType]
+}
+
 func runSeeders(seedType string) {
 
 	// Validate seed type
-	var validSeedTypes = map[string]bool{
-		"full":  true,
-		"basic": true,
-		"help":  true,
-	}
-
 	if !validSeedTypes[seedType] {
 		log.Fatalf("Invalid seed type provided: %s.", seedType)
 	}
