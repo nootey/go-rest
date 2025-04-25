@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"log"
 )
 
 var rootCmd = &cobra.Command{
@@ -23,6 +22,5 @@ func Execute() {
 		logger, _ := zap.NewProduction()
 		defer logger.Sync()
 		logger.Fatal("Failed to execute root command", zap.Error(err))
-		log.Fatal(err)
 	}
 }

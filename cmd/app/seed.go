@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/spf13/cobra"
 	"go-rest/pkg/config"
 	"go-rest/pkg/database"
@@ -13,12 +14,12 @@ var seedCmd = &cobra.Command{
 	Use:   "seed [type]",
 	Short: "Run database seeders",
 	Args:  cobra.MaximumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		seedType := "help"
 		if len(args) > 0 {
 			seedType = args[0]
 		}
-		runSeeders(seedType)
+		return runSeeders(seedType)
 	},
 }
 
@@ -32,32 +33,25 @@ func isValidSeedType(seedType string) bool {
 	return validSeedTypes[seedType]
 }
 
-func runSeeders(seedType string) {
-
+func runSeeders(seedType string) error {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		panic("Failed to initialize logger: " + err.Error()) // can't log if logger failed
+		return fmt.Errorf("failed to initialize logger: %w", err)
 	}
 	defer logger.Sync()
 
-	// Validate seed type
 	if !isValidSeedType(seedType) {
-		logger.Fatal("Invalid seed type provided", zap.String("seedType", seedType))
+		return fmt.Errorf("invalid seed type: %s", seedType)
 	}
 
-	logger.Info("Starting database seeding")
-
 	cfg := config.LoadConfig()
-	logger.Info("Loaded the configuration", zap.Any("config", cfg))
 
 	dbClient, err := database.ConnectToDatabase(cfg)
 	if err != nil {
-		logger.Fatal("Failed to connect to MongoDB", zap.Error(err))
+		return fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
 	defer func() {
-		if err := dbClient.Disconnect(context.Background()); err != nil {
-			logger.Error("Error while disconnecting MongoDB client", zap.Error(err))
-		}
+		_ = dbClient.Disconnect(context.Background())
 	}()
 
 	ctx := context.Background()
@@ -66,13 +60,14 @@ func runSeeders(seedType string) {
 	case "full", "basic":
 		err = seeders.SeedDatabase(ctx, dbClient, seedType, cfg.DatabaseName)
 		if err != nil {
-			logger.Fatal("Failed to seed database", zap.String("type", seedType), zap.Error(err))
+			return fmt.Errorf("failed to seed database for type %s: %w", seedType, err)
 		}
-		logger.Info("Database seeding completed for type: %s", zap.String("type", seedType))
 	case "help":
-		logger.Fatal("Seeder usage help", zap.Strings("validTypes", []string{"full", "basic"}))
+		// just print help? maybe log info?
+		return nil
 	default:
-		logger.Fatal("Unhandled seeder type", zap.String("type", seedType))
+		return fmt.Errorf("unhandled seeder type: %s", seedType)
 	}
 
+	return nil
 }

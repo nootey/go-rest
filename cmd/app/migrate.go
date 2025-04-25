@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mongodb"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -17,19 +18,19 @@ var migrateCmd = &cobra.Command{
 	Use:   "migrate [type]",
 	Short: "Run database migrations",
 	Args:  cobra.MaximumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		migrationType := "help"
 		if len(args) > 0 {
 			migrationType = args[0]
 		}
-		runMigrations(migrationType)
+		return runMigrations(migrationType)
 	},
 }
 
-func runMigrations(migrationType string) {
+func runMigrations(migrationType string) error {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		panic("Failed to initialize logger: " + err.Error())
+		return fmt.Errorf("failed to initialize logger: %w", err)
 	}
 	defer logger.Sync()
 
@@ -40,7 +41,7 @@ func runMigrations(migrationType string) {
 
 	dbClient, err := database.ConnectToDatabase(cfg)
 	if err != nil {
-		logger.Fatal("Failed to connect to MongoDB", zap.Error(err))
+		return fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
 	defer func() {
 		if err := dbClient.Disconnect(context.Background()); err != nil {
@@ -52,9 +53,8 @@ func runMigrations(migrationType string) {
 		DatabaseName: cfg.DatabaseName,
 	})
 	if err != nil {
-		logger.Fatal("Failed to create MongoDB driver", zap.Error(err))
+		return fmt.Errorf("failed to create MongoDB driver: %w", err)
 	}
-
 	migrationsDir := "./pkg/database/migrations"
 
 	// Create migrate instance
@@ -64,7 +64,7 @@ func runMigrations(migrationType string) {
 		driver,
 	)
 	if err != nil {
-		logger.Fatal("Failed to initialize migrate instance", zap.Error(err))
+		return fmt.Errorf("failed to initialize migrate instance: %w", err)
 	}
 
 	// Run based on the type
@@ -81,7 +81,7 @@ func runMigrations(migrationType string) {
 	case "fresh":
 		err = database.ResetDatabase(dbClient, cfg.DatabaseName)
 		if err != nil {
-			logger.Fatal("Failed to reset database", zap.Error(err))
+			return fmt.Errorf("failed to reset database: %w", err)
 		}
 		err = m.Up()
 		if err == nil || err == migrate.ErrNoChange {
@@ -94,16 +94,17 @@ func runMigrations(migrationType string) {
 		versionStr := os.Getenv("VERSION")
 		version, convErr := strconv.Atoi(versionStr)
 		if convErr != nil {
-			logger.Fatal("Invalid version format for force", zap.String("value", versionStr), zap.Error(convErr))
+			return fmt.Errorf("invalid version format for force: %w", convErr)
 		}
 		err = m.Force(version)
 	default:
-		logger.Fatal("Invalid migration type", zap.String("type", migrationType))
+		return fmt.Errorf("invalid migration type: %s", migrationType)
 	}
 
 	if err != nil && err != migrate.ErrNoChange {
-		logger.Fatal("Migration failed", zap.String("type", migrationType), zap.Error(err))
+		return fmt.Errorf("migration failed for type %s: %w", migrationType, err)
 	}
 
 	logger.Info("Migrations completed successfully", zap.String("type", migrationType))
+	return nil
 }

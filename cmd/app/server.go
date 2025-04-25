@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"go-rest/internal/runtime"
 	"go-rest/pkg/config"
@@ -10,13 +11,13 @@ import (
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Run the API server",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		ctx := cmd.Context() // get context from Cobra
 
 		logger, err := zap.NewProduction()
 		if err != nil {
-			panic("Failed to initialize logger: " + err.Error())
+			return fmt.Errorf("failed to initialize logger: %w", err)
 		}
 		defer logger.Sync()
 
@@ -28,6 +29,6 @@ var serverCmd = &cobra.Command{
 		)
 
 		app := runtime.NewServerRuntime(cfg, logger)
-		app.Run(ctx)
+		return app.Run(ctx)
 	},
 }
