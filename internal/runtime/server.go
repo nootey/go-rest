@@ -23,8 +23,8 @@ func NewServerRuntime(cfg *config.Config, logger *zap.Logger) *ServerRuntime {
 	}
 }
 
-func (rt *ServerRuntime) Run() {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+func (rt *ServerRuntime) Run(context context.Context) {
+	ctx, stop := signal.NotifyContext(context, syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 
 	dbClient, err := database.ConnectToDatabase(rt.Config)

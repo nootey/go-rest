@@ -12,6 +12,8 @@ var serverCmd = &cobra.Command{
 	Short: "Run the API server",
 	Run: func(cmd *cobra.Command, args []string) {
 
+		ctx := cmd.Context() // get context from Cobra
+
 		logger, err := zap.NewProduction()
 		if err != nil {
 			panic("Failed to initialize logger: " + err.Error())
@@ -26,6 +28,6 @@ var serverCmd = &cobra.Command{
 		)
 
 		app := runtime.NewServerRuntime(cfg, logger)
-		app.Run()
+		app.Run(ctx)
 	},
 }
