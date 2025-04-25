@@ -80,7 +80,7 @@ func (h *AuthHandler) LoginUser(c *gin.Context) {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	_, claims, err := h.Service.WebClientMiddleware.ParseJWTToken(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+		utils.ErrorMessage(c, "Unauthorized", "Invalid or expired token", http.StatusUnauthorized, err)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
 	newTokenString, err := newToken.SignedString(jwtSecret)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate new token"})
+		utils.ErrorMessage(c, "Token error", "Failed to generate new token", http.StatusInternalServerError, err)
 		return
 	}
 
