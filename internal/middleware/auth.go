@@ -35,8 +35,7 @@ func (m *WebClientMiddleware) WebClientAuthentication() gin.HandlerFunc {
 
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
 
@@ -49,14 +48,12 @@ func (m *WebClientMiddleware) WebClientAuthentication() gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 
 		if !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Expired token"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Expired token"})
 			return
 		}
 
