@@ -25,12 +25,11 @@ func (r *RouteInitializerHTTP) InitEndpoints() {
 
 	// Version 1
 	_v1 := api.Group("/v1")
+	r.Router.GET("/", rootHandler)
 	r.initV1Routes(_v1)
 }
 
 func (r *RouteInitializerHTTP) initV1Routes(_v1 *gin.RouterGroup) {
-
-	r.Router.GET("/", rootHandler)
 
 	noteHandler := httpHandlers.NewNoteHandler(r.Container.NotesService)
 	userHandler := httpHandlers.NewUserHandler(r.Container.UserService)
